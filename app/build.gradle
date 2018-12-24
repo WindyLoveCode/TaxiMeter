@@ -1,8 +1,10 @@
 apply plugin: 'com.android.application'
 
+def AAVersion = '4.4.0'
+
 android {
     compileSdkVersion 27
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.codewind.taximeter"
         minSdkVersion 15
@@ -10,6 +12,14 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // 添加下面这一段到defaultConfig下面
+        javaCompileOptions {
+            annotationProcessorOptions {
+            //这里的包名和applicationId一致
+            arguments = ['resourcePackageName': "com.codewind.taximeter"]
+            }
+        }
+
     }
     buildTypes {
         release {
@@ -24,6 +34,21 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.3.0'
+    compile 'com.android.support:appcompat-v7:26.+'
     testCompile 'junit:junit:4.12'
+    //3.0之后的用法
+    annotationProcessor "org.androidannotations:androidannotations:$AAVersion"
+    implementation "org.androidannotations:androidannotations-api:$AAVersion"
+
+    //3.0之前的用法，这里注释掉，修改为上面的用法
+    //apt "org.androidannotations:androidannotations:$AAVersion"
+    //compile "org.androidannotations:androidannotations-api:$AAVersion"
+
 }
+//3.0之前的用法，这里修改为defaultConfig里面的用法
+//apt {
+//    arguments {
+//        androidManifestFile variant.outputs[0].processResources.manifestFile
+//        resourcePackageName 'com.nexgo.mposdemo'
+//    }
+//}
