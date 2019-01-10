@@ -27,6 +27,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main() {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 dependencies {
@@ -39,11 +44,10 @@ dependencies {
     //3.0之后的用法
     annotationProcessor "org.androidannotations:androidannotations:$AAVersion"
     implementation "org.androidannotations:androidannotations-api:$AAVersion"
-
     //3.0之前的用法，这里注释掉，修改为上面的用法
     //apt "org.androidannotations:androidannotations:$AAVersion"
     //compile "org.androidannotations:androidannotations-api:$AAVersion"
-
+    implementation files('libs/baidumapapi_map_v4_3_1.jar')
 }
 //3.0之前的用法，这里修改为defaultConfig里面的用法
 //apt {
