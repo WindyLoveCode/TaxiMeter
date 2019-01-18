@@ -1,20 +1,27 @@
 package com.codewind.taximeter.activity;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.baidu.mapapi.SDKInitializer;
 import com.codewind.taximeter.R;
+import com.zaaach.citypicker.CityPicker;
+import com.zaaach.citypicker.adapter.OnPickListener;
+import com.zaaach.citypicker.model.City;
+import com.zaaach.citypicker.model.LocateState;
+import com.zaaach.citypicker.model.LocatedCity;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 
 @EActivity(R.layout.activity_main)
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private SDKReceiver mReceiver;
 
     /**
@@ -45,6 +52,42 @@ public class MainActivity extends Activity {
         iFilter.addAction(SDKInitializer.SDK_BROADCAST_ACTION_STRING_NETWORK_ERROR);
         mReceiver = new SDKReceiver();
         registerReceiver(mReceiver, iFilter);
+    }
+    @AfterViews
+    void initView(){
+        CityPicker.from(MainActivity.this)
+                .enableAnimation(false)
+                .setAnimationStyle(R.style.CustomAnim)
+                .setLocatedCity(null)
+                .setHotCities(null)
+                .setOnPickListener(new OnPickListener() {
+                    @Override
+                    public void onPick(int position, City data) {
+//                        currentTV.setText(String.format("当前城市：%s，%s", data.getName(), data.getCode()));
+                        Toast.makeText(
+                                getApplicationContext(),
+                                String.format("点击的数据：%s，%s", data.getName(), data.getCode()),
+                                Toast.LENGTH_SHORT)
+                                .show();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        Toast.makeText(getApplicationContext(), "取消选择", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLocate() {
+                        //开始定位，这里模拟一下定位
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                CityPicker.from(MainActivity.this).locateComplete(new LocatedCity("深圳", "广东", "101280601"), LocateState.SUCCESS);
+                            }
+                        }, 3000);
+                    }
+                })
+                .show();
     }
     @Override
     protected void onDestroy() {

@@ -48,6 +48,7 @@ dependencies {
     //apt "org.androidannotations:androidannotations:$AAVersion"
     //compile "org.androidannotations:androidannotations-api:$AAVersion"
     implementation files('libs/baidumapapi_map_v4_3_1.jar')
+    implementation project(':citypicker')
 }
 //3.0之前的用法，这里修改为defaultConfig里面的用法
 //apt {
