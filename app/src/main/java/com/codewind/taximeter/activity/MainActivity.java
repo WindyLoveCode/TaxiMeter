@@ -1,15 +1,33 @@
 package com.codewind.taximeter.activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.baidu.mapapi.SDKInitializer;
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.MapStatus;
+import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MarkerOptions;
+import com.baidu.mapapi.map.MyLocationConfiguration;
+import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.map.Polyline;
+import com.baidu.mapapi.map.PolylineOptions;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.codewind.taximeter.R;
 import com.zaaach.citypicker.CityPicker;
 import com.zaaach.citypicker.adapter.OnPickListener;
@@ -18,44 +36,83 @@ import com.zaaach.citypicker.model.LocateState;
 import com.zaaach.citypicker.model.LocatedCity;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
 
 @EActivity(R.layout.activity_main)
-public class MainActivity extends AppCompatActivity {
-    private SDKReceiver mReceiver;
+public class MainActivity extends BaseActivity implements SensorEventListener {
+    /**城市选择*/
+    @ViewById(R.id.layout_main_city) LinearLayout layout_city;
+    @ViewById(R.id.text_main_city) TextView text_city;
+    /**设置*/
+    @ViewById(R.id.text_main_set) TextView text_set;
+    /**百度地图*/
+    @ViewById(R.id.mapview_main) MapView mapView;
+    private BaiduMap baiduMap;
+    private float mCurrentZoom = 18f;//默认地图缩放比例值
+    /**定位相关*/
+    LocationClient mLocClient;
+    public MyLocationListenner myListener = new MyLocationListenner();
+    private int mCurrentDirection = 0;
+    private double mCurrentLat = 0.0;
+    private double mCurrentLon = 0.0;
 
-    /**
-     * 构造广播监听类，监听 SDK key 验证以及网络异常广播
-     */
-    public class SDKReceiver extends BroadcastReceiver {
+    boolean isFirstLoc = true; // 是否首次定位
+    private MyLocationData locData;
+    private SensorManager mSensorManager;//传感器管理服务
 
-        public void onReceive(Context context, Intent intent) {
-            String s = intent.getAction();
-
-            if (s.equals(SDKInitializer.SDK_BROADTCAST_ACTION_STRING_PERMISSION_CHECK_ERROR)) {
-                Toast.makeText(MainActivity.this,"apikey验证失败，地图功能无法正常使用",Toast.LENGTH_SHORT).show();
-            } else if (s.equals(SDKInitializer.SDK_BROADTCAST_ACTION_STRING_PERMISSION_CHECK_OK)) {
-                Toast.makeText(MainActivity.this,"apikey验证成功",Toast.LENGTH_SHORT).show();
-            } else if (s.equals(SDKInitializer.SDK_BROADCAST_ACTION_STRING_NETWORK_ERROR)) {
-                Toast.makeText(MainActivity.this,"网络错误",Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+    private MapStatus.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // apikey的授权需要一定的时间，在授权成功之前地图相关操作会出现异常；apikey授权成功后会发送广播通知，我们这里注册 SDK 广播监听者
-        IntentFilter iFilter = new IntentFilter();
-        iFilter.addAction(SDKInitializer.SDK_BROADTCAST_ACTION_STRING_PERMISSION_CHECK_OK);
-        iFilter.addAction(SDKInitializer.SDK_BROADTCAST_ACTION_STRING_PERMISSION_CHECK_ERROR);
-        iFilter.addAction(SDKInitializer.SDK_BROADCAST_ACTION_STRING_NETWORK_ERROR);
-        mReceiver = new SDKReceiver();
-        registerReceiver(mReceiver, iFilter);
+
     }
     @AfterViews
     void initView(){
-        CityPicker.from(MainActivity.this)
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);// 获取传感器管理服务
+
+        baiduMap = mapView.getMap();
+        //开启定位图层
+        baiduMap.setMyLocationEnabled(true);
+        baiduMap.setMyLocationConfiguration(new MyLocationConfiguration(
+                com.baidu.mapapi.map.MyLocationConfiguration.LocationMode.FOLLOWING, true, null));
+        /**添加地图缩放状态变化监听，当手动放大或缩小地图时，拿到缩放后的比例，然后获取到下次定位，给地图重新设置缩放比例，否则地图会重新回到默认的mCurrentZoom缩放比例*/
+        baiduMap.setOnMapStatusChangeListener(new BaiduMap.OnMapStatusChangeListener() {
+
+            @Override
+            public void onMapStatusChangeStart(MapStatus arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onMapStatusChangeFinish(MapStatus arg0) {
+                mCurrentZoom = arg0.zoom;
+            }
+
+            @Override
+            public void onMapStatusChange(MapStatus arg0) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+        // 定位初始化
+        mLocClient = new LocationClient(this);
+        mLocClient.registerLocationListener(myListener);
+        LocationClientOption option = new LocationClientOption();
+        option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);//只用gps定位，需要在室外定位。
+        option.setOpenGps(true); // 打开gps
+        option.setCoorType("bd09ll"); // 设置坐标类型
+        option.setScanSpan(1000);
+        mLocClient.setLocOption(option);
+        mLocClient.start();
+    }
+    /**点击选择城市*/
+    @Click(R.id.layout_main_city)
+    void click_city(){
+                CityPicker.from(MainActivity.this)
                 .enableAnimation(false)
                 .setAnimationStyle(R.style.CustomAnim)
                 .setLocatedCity(null)
@@ -63,12 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 .setOnPickListener(new OnPickListener() {
                     @Override
                     public void onPick(int position, City data) {
-//                        currentTV.setText(String.format("当前城市：%s，%s", data.getName(), data.getCode()));
-                        Toast.makeText(
-                                getApplicationContext(),
-                                String.format("点击的数据：%s，%s", data.getName(), data.getCode()),
-                                Toast.LENGTH_SHORT)
-                                .show();
+                        text_city.setText(data.getName()+"市");
                     }
 
                     @Override
@@ -89,9 +141,99 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .show();
     }
+    /**点击设置*/
+    @Click(R.id.text_main_set)
+    void click_set(){
+
+    }
+    /**定位SDK监听函数*/
+    public class MyLocationListenner implements BDLocationListener {
+
+        @Override
+        public void onReceiveLocation(final BDLocation location) {
+            if (location == null || mapView == null) {
+                return;
+            }
+
+            //注意这里只接受gps点，需要在室外定位。
+            if (location.getLocType() == BDLocation.TypeGpsLocation) {
+                LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
+                locateAndZoom(location,ll);
+            }else{
+                Log.i("","当前为室内环境");
+            }
+        }
+
+    }
+    private void locateAndZoom(final BDLocation location, LatLng ll) {
+        mCurrentLat = location.getLatitude();
+        mCurrentLon = location.getLongitude();
+        locData = new MyLocationData.Builder().accuracy(0)
+                // 此处设置开发者获取到的方向信息，顺时针0-360
+                .direction(mCurrentDirection).latitude(location.getLatitude())
+                .longitude(location.getLongitude()).build();
+        baiduMap.setMyLocationData(locData);
+
+        builder = new MapStatus.Builder();
+        builder.target(ll).zoom(mCurrentZoom);
+        baiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+    }
+
+    double lastX;
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        double x = sensorEvent.values[SensorManager.DATA_X];
+
+        if (Math.abs(x - lastX) > 1.0) {
+            mCurrentDirection = (int) x;
+
+            if (isFirstLoc) {
+                lastX = x;
+                return;
+            }
+
+            locData = new MyLocationData.Builder().accuracy(0)
+                    // 此处设置开发者获取到的方向信息，顺时针0-360
+                    .direction(mCurrentDirection).latitude(mCurrentLat).longitude(mCurrentLon).build();
+            baiduMap.setMyLocationData(locData);
+        }
+        lastX = x;
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
+    @Override
+    protected void onResume() {
+        mapView.onResume();
+        super.onResume();
+        // 为系统的方向传感器注册监听器
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+                SensorManager.SENSOR_DELAY_UI);
+    }
+    @Override
+    protected void onStop() {
+        // 取消注册传感器监听
+        mSensorManager.unregisterListener(this);
+        super.onStop();
+    }
     @Override
     protected void onDestroy() {
+        // 退出时销毁定位
+        mLocClient.unRegisterLocationListener(myListener);
+        if (mLocClient != null && mLocClient.isStarted()) {
+            mLocClient.stop();
+        }
+        // 关闭定位图层
+        baiduMap.setMyLocationEnabled(false);
+        mapView.getMap().clear();
+        mapView.onDestroy();
+        mapView = null;
+//        startBD.recycle();
+//        finishBD.recycle();
         super.onDestroy();
-        unregisterReceiver(mReceiver);
     }
 }

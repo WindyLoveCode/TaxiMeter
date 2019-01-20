@@ -15,8 +15,8 @@ android {
         // 添加下面这一段到defaultConfig下面
         javaCompileOptions {
             annotationProcessorOptions {
-            //这里的包名和applicationId一致
-            arguments = ['resourcePackageName': "com.codewind.taximeter"]
+                //这里的包名和applicationId一致
+                arguments = ['resourcePackageName': "com.codewind.taximeter"]
             }
         }
 
@@ -35,25 +35,16 @@ android {
 }
 
 dependencies {
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support:appcompat-v7:27.+'
     testCompile 'junit:junit:4.12'
     //3.0之后的用法
     annotationProcessor "org.androidannotations:androidannotations:$AAVersion"
     implementation "org.androidannotations:androidannotations-api:$AAVersion"
-    //3.0之前的用法，这里注释掉，修改为上面的用法
-    //apt "org.androidannotations:androidannotations:$AAVersion"
-    //compile "org.androidannotations:androidannotations-api:$AAVersion"
     implementation files('libs/baidumapapi_map_v4_3_1.jar')
     implementation project(':citypicker')
 }
-//3.0之前的用法，这里修改为defaultConfig里面的用法
-//apt {
-//    arguments {
-//        androidManifestFile variant.outputs[0].processResources.manifestFile
-//        resourcePackageName 'com.nexgo.mposdemo'
-//    }
-//}
