@@ -23,7 +23,7 @@ public class WelcomeActivity extends BaseActivity {
         iFilter.addAction(SDKInitializer.SDK_BROADTCAST_ACTION_STRING_PERMISSION_CHECK_OK);
         iFilter.addAction(SDKInitializer.SDK_BROADTCAST_ACTION_STRING_PERMISSION_CHECK_ERROR);
         iFilter.addAction(SDKInitializer.SDK_BROADCAST_ACTION_STRING_NETWORK_ERROR);
-        mReceiver = new BaiDuSDKReceiver(WelcomeActivity.this);
+        mReceiver = new BaiDuSDKReceiver();
         registerReceiver(mReceiver, iFilter);
         /**等待几秒进入主界面*/
         new Handler().postDelayed(new Runnable() {

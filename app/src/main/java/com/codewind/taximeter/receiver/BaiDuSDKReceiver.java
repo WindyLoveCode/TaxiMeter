@@ -11,10 +11,6 @@ import com.baidu.mapapi.SDKInitializer;
  * 构造广播监听类，监听 SDK key 验证以及网络异常广播
  */
 public class BaiDuSDKReceiver extends BroadcastReceiver {
-    private Context context;
-    public BaiDuSDKReceiver(Context context){
-        this.context = context;
-    }
     public void onReceive(Context context, Intent intent) {
         String s = intent.getAction();
 
