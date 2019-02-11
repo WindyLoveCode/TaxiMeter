@@ -53,6 +53,7 @@
         <activity android:name=".activity.BaseActivity_" />
         <activity android:name=".activity.SetActivity_" />
         <activity android:name=".activity.SFBZActivity_"></activity>
+        <service android:name=".service.WorkingService"></service>
     </application>
 
 </manifest>

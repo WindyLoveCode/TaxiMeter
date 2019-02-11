@@ -1,5 +1,9 @@
 package com.codewind.taximeter.activity;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -7,8 +11,10 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.LinearLayout;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +70,10 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
 
     private MapStatus.Builder builder;
 
+    /**通知栏相关*/
+    private RemoteViews contentView;
+    private Notification notification;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +118,8 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
         option.setScanSpan(3000);
         mLocClient.setLocOption(option);
         mLocClient.start();
+        initNotification();
+        startNotifi("0","0","0");
     }
     /**点击选择城市*/
     @Click(R.id.layout_main_city)
@@ -206,6 +218,23 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
+    }
+    private void initNotification(){
+        int icon = R.mipmap.bike_icon2;
+        contentView = new RemoteViews(getPackageName(), R.layout.notification_layout);
+        notification = new NotificationCompat.Builder(this).setContent(contentView).setSmallIcon(icon).build();
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.putExtra("flag", "notification");
+        notification.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        //获取NotificationManager实例
+        NotificationManager notifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notifyManager.notify(1,notification);
+    }
+    private void startNotifi(String time, String distance, String price) {
+
+        contentView.setTextViewText(R.id.bike_time, time);
+        contentView.setTextViewText(R.id.bike_distance, distance);
+        contentView.setTextViewText(R.id.bike_price, price);
     }
 
     @Override
