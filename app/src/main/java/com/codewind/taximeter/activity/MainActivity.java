@@ -1,5 +1,6 @@
 package com.codewind.taximeter.activity;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -104,7 +105,7 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
         option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);//只用gps定位，需要在室外定位。
         option.setOpenGps(true); // 打开gps
         option.setCoorType("bd09ll"); // 设置坐标类型
-        option.setScanSpan(1000);
+        option.setScanSpan(3000);
         mLocClient.setLocOption(option);
         mLocClient.start();
     }
@@ -143,13 +144,15 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
     /**点击设置*/
     @Click(R.id.text_main_set)
     void click_set(){
-
+        Intent intent_set = new Intent(MainActivity.this,SetActivity_.class);
+        startActivity(intent_set);
     }
     /**定位SDK监听函数*/
     public class MyLocationListenner implements BDLocationListener {
 
         @Override
         public void onReceiveLocation(final BDLocation location) {
+            Log.i("MainActivity","---");
             if (location == null || mapView == null) {
                 return;
             }

@@ -6,6 +6,7 @@ import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 
 public class MyApplication extends Application {
+    private int working_state;//工作状态 0：停止工作，1：工作中
 
     @Override
     public void onCreate() {
@@ -17,4 +18,11 @@ public class MyApplication extends Application {
         SDKInitializer.setCoordType(CoordType.BD09LL);
     }
 
+    public int getWorking_state() {
+        return working_state;
+    }
+
+    public void setWorking_state(int working_state) {
+        this.working_state = working_state;
+    }
 }

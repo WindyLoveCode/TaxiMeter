@@ -32,7 +32,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.MainActivity_"
-            android:theme="@style/DefaultCityPickerTheme"></activity>
+            android:theme="@style/DefaultCityPickerTheme" />
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
@@ -50,7 +50,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.BaseActivity_"></activity>
+        <activity android:name=".activity.BaseActivity_" />
+        <activity android:name=".activity.SetActivity_" />
+        <activity android:name=".activity.SFBZActivity_"></activity>
     </application>
 
 </manifest>
