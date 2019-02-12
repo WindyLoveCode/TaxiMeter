@@ -1,8 +1,6 @@
 package com.codewind.taximeter.activity;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -11,12 +9,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ZoomControls;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -28,13 +27,10 @@ import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
-import com.baidu.mapapi.map.OverlayOptions;
-import com.baidu.mapapi.map.Polyline;
-import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.utils.DistanceUtil;
 import com.codewind.taximeter.R;
-import com.codewind.taximeter.dialog.CustomDialog;
+import com.codewind.taximeter.service.WorkingService;
+import com.codewind.taximeter.util.Utils;
 import com.zaaach.citypicker.CityPicker;
 import com.zaaach.citypicker.adapter.OnPickListener;
 import com.zaaach.citypicker.model.City;
@@ -51,6 +47,12 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
     /**城市选择*/
     @ViewById(R.id.layout_main_city) LinearLayout layout_city;
     @ViewById(R.id.text_main_city) TextView text_city;
+    @ViewById(R.id.text_main_distance)
+    static TextView text_distance;
+    @ViewById(R.id.text_main_time)
+    static TextView text_time;
+    @ViewById(R.id.text_main_price)
+    static TextView text_price;
     /**设置*/
     @ViewById(R.id.text_main_set) TextView text_set;
     /**百度地图*/
@@ -70,10 +72,6 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
 
     private MapStatus.Builder builder;
 
-    /**通知栏相关*/
-    private RemoteViews contentView;
-    private Notification notification;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +80,16 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
     @AfterViews
     void initView(){
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);// 获取传感器管理服务
+
+        //不显示百度地图logo
+        View child = mapView.getChildAt(1);
+        if (child != null && (child instanceof ImageView || child instanceof ZoomControls)) {
+            child.setVisibility(View.INVISIBLE);
+        }
+        // 不显示地图上比例尺
+        mapView.showScaleControl(false);
+        // 不显示地图缩放控件（按钮控制栏）
+        mapView.showZoomControls(false);
 
         baiduMap = mapView.getMap();
         //开启定位图层
@@ -108,6 +116,7 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
 
             }
         });
+
         // 定位初始化
         mLocClient = new LocationClient(this);
         mLocClient.registerLocationListener(myListener);
@@ -115,11 +124,11 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
         option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);//只用gps定位，需要在室外定位。
         option.setOpenGps(true); // 打开gps
         option.setCoorType("bd09ll"); // 设置坐标类型
-        option.setScanSpan(3000);
+        option.setScanSpan(2000);
         mLocClient.setLocOption(option);
         mLocClient.start();
-        initNotification();
-        startNotifi("0","0","0");
+        Intent intent = new Intent(this, WorkingService.class);
+        startService(intent);
     }
     /**点击选择城市*/
     @Click(R.id.layout_main_city)
@@ -219,24 +228,6 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
-    private void initNotification(){
-        int icon = R.mipmap.bike_icon2;
-        contentView = new RemoteViews(getPackageName(), R.layout.notification_layout);
-        notification = new NotificationCompat.Builder(this).setContent(contentView).setSmallIcon(icon).build();
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.putExtra("flag", "notification");
-        notification.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-        //获取NotificationManager实例
-        NotificationManager notifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notifyManager.notify(1,notification);
-    }
-    private void startNotifi(String time, String distance, String price) {
-
-        contentView.setTextViewText(R.id.bike_time, time);
-        contentView.setTextViewText(R.id.bike_distance, distance);
-        contentView.setTextViewText(R.id.bike_price, price);
-    }
-
     @Override
     protected void onResume() {
         mapView.onResume();
@@ -266,5 +257,23 @@ public class MainActivity extends BaseActivity implements SensorEventListener {
 //        startBD.recycle();
 //        finishBD.recycle();
         super.onDestroy();
+    }
+    public static class LocationReceiver extends BroadcastReceiver {
+        public LocationReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Utils.isTopActivity(context)) {
+                String time = intent.getStringExtra("totalTime");
+                String distance = intent.getStringExtra("totalDistance");
+                String price = intent.getStringExtra("totalPrice");
+                text_time.setText(time);
+                text_distance.setText(distance);
+                text_price.setText(price);
+            } else {
+                Log.d("gaolei", "MainActivity-------TopActivity---------false");
+            }
+        }
     }
 }

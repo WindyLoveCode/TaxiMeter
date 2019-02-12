@@ -6,15 +6,14 @@
     android:layout_height="match_parent"
     tools:context="com.codewind.taximeter.activity.MainActivity">
 
+
     <com.baidu.mapapi.map.MapView
         android:id="@+id/mapview_main"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:clickable="true"
         android:visibility="visible"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/layout_main_top" />
 
     <RelativeLayout
         android:id="@+id/layout_main_top"
@@ -78,88 +77,78 @@
             <!--android:layout_alignParentLeft="true"/>-->
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/layout_main_bottom"
+    <LinearLayout
+        android:id="@+id/layout_main_working"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_main_top"
+        android:layout_margin="12dp"
+        android:background="@drawable/edge_shadow_bg"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/text_style"
+                    android:text="行驶时长" />
+
+                <TextView
+                    android:id="@+id/text_main_time"
+                    style="@style/text_style"
+                    android:textColor="@color/color_393939" />
+            </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/text_style"
+                    android:text="行驶距离" />
+
+                <TextView
+                    android:id="@+id/text_main_distance"
+                    style="@style/text_style"
+                    android:textColor="@color/color_393939" />
+            </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/text_style"
+                    android:text="费用计算" />
+
+                <TextView
+                    android:id="@+id/text_main_price"
+                    style="@style/text_style"
+                    android:textColor="@color/color_393939" />
+
+            </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/btn_bg_working_start"
+        android:gravity="center"
         android:layout_alignParentBottom="true"
-        android:visibility="visible"
-        android:layout_margin="10dp"
-        android:background="@android:color/white">
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="30dp"
+        android:layout_marginRight="30dp"
+        android:textColor="@color/white"
+        android:text="开始"/>
 
-        <Button
-            android:id="@+id/btn_main_start"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:text="开始" />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_alignParentTop="true"
-            android:gravity="center_vertical"
-            >
 
-            <TextView
-                android:text="距离:"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:layout_marginLeft="10dp"
-                android:textSize="16sp"
-                />
-
-            <TextView
-                android:text="0"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/text_main_juli"
-                android:layout_marginLeft="5dp"
-                android:textColor="@color/green"
-                android:textSize="16sp"
-                />
-            <TextView
-                android:text="km"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:layout_marginLeft="10dp"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_alignParentBottom="true"
-            android:gravity="center_vertical">
-            <TextView
-                android:text="价钱:"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:layout_marginLeft="10dp"
-                android:textSize="16sp"
-                />
-            <TextView
-                android:text="0"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/text_main_money"
-                android:layout_marginLeft="5dp"
-                android:textColor="@color/red"
-                android:textSize="16sp"
-                />
-            <TextView
-                android:text="元"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:layout_marginLeft="10dp"
-                android:textSize="16sp"
-                />
-        </LinearLayout>
-
-    </RelativeLayout>
 </RelativeLayout>
