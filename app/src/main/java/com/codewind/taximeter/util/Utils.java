@@ -19,10 +19,15 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+
+import com.codewind.taximeter.R;
+import com.codewind.taximeter.dialog.SelectDialog;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -241,5 +246,17 @@ public class Utils {
             }
         }
         return false;
+    }
+    public static void showDialog(Context context){
+        SelectDialog selectDialog = new SelectDialog(context, R.style.dialog);//创建Dialog并设置样式主题
+        Window win = selectDialog.getWindow();
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+//        params.x = -80;//设置x坐标
+//        params.y = -60;//设置y坐标
+        params.gravity = Gravity.CENTER;
+        win.setAttributes(params);
+        selectDialog.setCanceledOnTouchOutside(true);//设置点击Dialog外部任意区域关闭Dialog
+        selectDialog.show();
+
     }
 }

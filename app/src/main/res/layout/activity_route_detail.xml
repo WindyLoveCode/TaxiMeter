@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.codewind.taximeter.activity.RouteDetailActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/color_343333">
+        >
+
+        <ImageView
+            android:id="@+id/img_routedetail_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:clickable="true"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:src="@mipmap/return_icon" />
+
+        <TextView
+            android:id="@+id/text_routedetail_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="行程详情"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/map_routedetail"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:clickable="true" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/edge_shadow_bg"
+        android:orientation="vertical"
+        android:padding="5dp">
+
+        <TextView
+            android:id="@+id/text_routedetail_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="14dp"
+            android:text="行驶时长"
+            android:textColor="@color/color_757575"
+            android:textSize="18sp" />
+
+        <View style="@style/route_detail_divider" />
+
+        <TextView
+            android:id="@+id/text_routedetail_distance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="14dp"
+            android:text="行驶距离"
+            android:textColor="@color/color_757575"
+            android:textSize="18sp" />
+
+        <View style="@style/route_detail_divider" />
+
+        <TextView
+            android:id="@+id/text_routedetail__pricce"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="14dp"
+            android:text="余额支付"
+            android:textColor="@color/color_757575"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

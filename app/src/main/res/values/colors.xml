@@ -9,6 +9,7 @@
     <color name="white">#FFFFFF</color>
     <color name="num_color">#F91121</color>
     <color name="huise">#DDDDDD</color>
+    <color name="color_343333">#343333</color>
     <color name="black">#333333</color>
     <color name="black_1">#666666</color>
     <color name="black_2">#888888</color>
@@ -31,4 +32,6 @@
     <color name="xian_qian">#EBE8E6</color>
     <color name="color_e2e2e2">#e2e2e2</color>
     <color name="color_393939">#393939</color>
+    <color name="color_757575">#757575</color>
+    <color name="color_f4f4f4">#f4f4f4</color>
 </resources>

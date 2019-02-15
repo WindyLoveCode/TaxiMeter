@@ -1,13 +1,20 @@
 package com.codewind.taximeter.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.baidu.location.BDLocation;
@@ -18,10 +25,13 @@ import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.codewind.taximeter.R;
-import com.codewind.taximeter.activity.MainActivity;
+import com.codewind.taximeter.activity.MainActivity_;
+import com.codewind.taximeter.activity.RouteDetailActivity_;
 import com.codewind.taximeter.bean.RoutePoint;
+import com.codewind.taximeter.db.DBHelper;
 import com.codewind.taximeter.map.MyOrientationListener;
 import com.codewind.taximeter.util.Utils;
+import com.google.gson.Gson;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -73,6 +83,28 @@ public class WorkingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mLocationClient.stop();
+        myOrientationListener.stop();
+        Gson gson = new Gson();
+        String routeListStr = gson.toJson(routPointList);
+        Log.i("WorikingSerice",routeListStr);
+        Bundle bundle = new Bundle();
+        bundle.putString("totalTime",showTime);
+        bundle.putString("totalDistance",showDistance);
+        bundle.putString("totalPrice",showPrice);
+        bundle.putString("routePoints",routeListStr);
+        Intent intent = new Intent(this, RouteDetailActivity_.class);
+        intent.putExtras(bundle);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        if(routPointList.size()>2){
+            insertData(routeListStr);
+        }
+        Utils.releaseWakeLock();
+        stopForeground(true);
+        showTime = "";
+        showDistance = "";
+        showPrice = "";
     }
 
     @Override
@@ -123,11 +155,12 @@ public class WorkingService extends Service {
     /**通知栏初始化*/
     private void initNotification(){
         int icon = R.mipmap.bike_icon2;
-        contentView = new RemoteViews(getPackageName(),R.layout.notification_layout);
+        contentView = new RemoteViews(getPackageName(), R.layout.notification_layout);
         notification = new NotificationCompat.Builder(this).setContent(contentView).setSmallIcon(icon).build();
-        Intent notificationIntent = new Intent(this,MainActivity.class);
-        notificationIntent.putExtra("flag","notification");
-        notification.contentIntent = PendingIntent.getActivity(this,0,notificationIntent,0);
+        Intent notificationIntent = new Intent(this, MainActivity_.class);
+        notificationIntent.putExtra("flag", "notification");
+        notification.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
     }
 
     /**开始发送通知*/
@@ -146,6 +179,7 @@ public class WorkingService extends Service {
         private boolean isFirstIn = true;
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
+            Log.i("WorkingService","Locationing"+bdLocation.getLatitude()+bdLocation.getLongitude());
             if (null == bdLocation) return;
             if (!isRunning) return;
             //"4.9E-324"表示目前所处的环境（室内或者是网络状况不佳）造成无法获取到经纬度
@@ -199,6 +233,7 @@ public class WorkingService extends Service {
 
         }
     }
+    /**给主界面发送广播，刷新主界面数据*/
     private void showRouteInfo(String time,String distance,String price){
         Intent intent = new Intent("com.locationreceiver");
         Bundle bundle = new Bundle();
@@ -210,4 +245,20 @@ public class WorkingService extends Service {
 
         startNotifi(time, distance, price);
     }
+    /**保存路线数据到数据库*/
+    private void insertData(String routeListStr){
+        ContentValues values = new ContentValues();
+        values.put("work_date",Utils.getDateFromMillisecond(beginTime));
+        values.put("work_time",showTime);
+        values.put("work_distance",showDistance);
+        values.put("work_price",showPrice);
+        values.put("work_points",routeListStr);
+        //创建DataBaseHelper对象，
+        DBHelper dbHelper = new DBHelper(this);
+        //得到一个可写的SQLiteDatebase对象
+        SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
+        sqLiteDatabase.insert("work_route",null,values);
+        sqLiteDatabase.close();
+    }
+
 }

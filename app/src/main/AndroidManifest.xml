@@ -14,6 +14,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- 用于访问wifi网络信息，wifi信息会用于进行网络定位 -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
     <!-- 获取运营商信息，用于支持提供运营商信息相关的接口 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- 用于读取手机当前的状态 -->
@@ -22,10 +24,23 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- 访问网络，网络定位需要上网 -->
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.BAIDU_LOCATION_SERVICE" />
+    <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_GPS" />
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- 来电消音 -->
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- 摄影机 -->
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".activity.MyApplication"
@@ -36,7 +51,14 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.MainActivity_"
-            android:theme="@style/DefaultCityPickerTheme" />
+            android:launchMode="singleTask"
+            android:theme="@style/DefaultCityPickerTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
@@ -47,22 +69,20 @@
             android:enabled="true"
             android:process=":remote" />
 
-        <activity android:name=".activity.WelcomeActivity_">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".activity.WelcomeActivity_"></activity>
         <activity android:name=".activity.BaseActivity_" />
         <activity android:name=".activity.SetActivity_" />
-        <activity android:name=".activity.SFBZActivity_"></activity>
-        <service android:name=".service.WorkingService"></service>
+        <activity android:name=".activity.SFBZActivity_" />
+
+        <service android:name=".service.WorkingService" />
+
         <receiver android:name=".activity.MainActivity$LocationReceiver">
             <intent-filter>
                 <action android:name="com.locationreceiver" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".activity.RouteDetailActivity_"></activity>
     </application>
 
 </manifest>

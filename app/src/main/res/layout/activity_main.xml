@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context="com.codewind.taximeter.activity.MainActivity">
 
-
     <com.baidu.mapapi.map.MapView
         android:id="@+id/mapview_main"
         android:layout_width="fill_parent"
@@ -66,15 +65,6 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!--<ProgressBar-->
-            <!--android:id="@+id/progressBar"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--style="?android:attr/progressBarStyleSmall"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_centerVertical="true"-->
-            <!--android:layout_marginLeft="5dp"-->
-            <!--android:visibility="gone"-->
-            <!--android:layout_alignParentLeft="true"/>-->
     </RelativeLayout>
 
     <LinearLayout
@@ -85,7 +75,7 @@
         android:layout_margin="12dp"
         android:background="@drawable/edge_shadow_bg"
         android:orientation="horizontal"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <LinearLayout
                 android:layout_width="0dp"
@@ -139,6 +129,7 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/btn_main_working"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@drawable/btn_bg_working_start"
@@ -149,6 +140,12 @@
         android:layout_marginRight="30dp"
         android:textColor="@color/white"
         android:text="开始"/>
-
+    <ImageView
+        android:id="@+id/splash_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/welcome"
+        android:scaleType="fitXY"
+        />
 
 </RelativeLayout>
